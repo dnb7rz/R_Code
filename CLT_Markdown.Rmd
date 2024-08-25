@@ -1,0 +1,38 @@
+---
+title: "CLT Proof"
+author: "NTF"
+date: "`r Sys.Date()`"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Central Limit Theorem (CLT)
+
+- Statistical theory that states that the mean of a sample from a population will be close to the population mean if the sample size is large enough
+- the distribution of the sample mean will be normal, regardless of the distribution of the population
+- Binomial sample with normal distribution
+
+## Given a random generated binomial distribution
+
+```{r CLT, echo = TRUE}
+library(ggplot2)
+
+set.seed(1234)
+
+BiNums = data.frame(vals = rbinom(n=1000, size=50, prob=0.5))
+
+```
+
+## A large binomial sample moves toward a normal distribution
+
+```{r CLT plot}
+ggplot(BiNums, aes(x=vals)) + 
+  geom_histogram(aes(y=after_stat(density)),      
+                 binwidth=.5) +
+  geom_density(alpha=.2, fill="#FF6666")  
+
+```
+
