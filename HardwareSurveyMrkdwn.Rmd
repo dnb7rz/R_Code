@@ -1,0 +1,143 @@
+---
+title: "Hardware Survey Results"
+author: "NTF"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+library(tidyverse)
+
+hrdwr = as.data.frame(read.csv('C:\\Users\\ntfou\\OneDrive\\Documentos\\R_Code\\R_Code\\HardwareData.csv'))
+
+```
+
+## Hardware Survey Analysis   
+
+General descriptive statistics from the Hardware Survey
+Note: there are outliers and NAs that are filtered out of the data summarized below to improve the analysis
+
+```{r hrdwr}
+summary(hrdwr)
+```
+
+## Hardware Survey Across the Years
+
+
+```{r Yrs, echo=FALSE}
+
+hrdwr$Timestamp = as.POSIXct(hrdwr$Timestamp, format="%m/%d/%Y %H:%M", tz="UTC")
+
+hrdwr$Year = as.integer(NA)
+
+hrdwr = hrdwr %>%
+  mutate(Year = year(Timestamp))
+
+#removed 1970 outlier
+tempYr = hrdwr %>%
+  filter(Year > 2019)
+
+ggplot(tempYr , aes(Year)) +
+  geom_bar(alpha=.5, fill="black") +
+  geom_text(aes(label = after_stat(count)), stat = "count", vjust = 2, colour = "white") 
+
+```
+
+## Hardware Survey - A look at the OS
+
+
+```{r OpSys, echo=FALSE}
+
+hrdwr$OpSys = str_wrap(hrdwr$OpSys, width = 10)
+
+ggplot(hrdwr, aes(OpSys)) +
+  geom_bar(alpha=.5, fill="black") +
+  geom_text(aes(label = after_stat(count)), stat = "count", vjust = 0, colour = "black") 
+
+```
+
+## Hardware Survey - The CPU, a Distribution by GHz
+
+
+```{r CPU, echo=FALSE}
+
+hrdwr$OpSys = str_wrap(hrdwr$OpSys, width = 10)
+
+ggplot(hrdwr, aes(x=CPU_ghz)) +
+  geom_histogram(binwidth=.2, alpha=.5, fill="black") +
+  coord_cartesian(xlim = c(1, 5)) 
+
+```
+
+## Hardware Survey - The CPU Cores
+
+
+```{r CPU_Cores, echo=FALSE}
+
+ggplot(hrdwr, aes(x=CPU_Cores)) +
+  geom_bar(alpha=.5, fill="black") +
+  geom_text(aes(label = after_stat(count)), stat = "count", vjust = 0, colour = "black") 
+
+```
+
+## Hardware Survey - RAM, a Distribution by Gbs
+
+
+```{r RAM_gb, echo=FALSE}
+
+ggplot(hrdwr, aes(x=RAM_gb)) +
+  geom_bar(alpha=.5, fill="black") 
+
+```
+
+## Hardware Survey - Hard Drive, a Distribution by Gbs
+
+
+```{r HrdDrv_gb, echo=FALSE}
+
+ggplot(hrdwr, aes(x=HrdDrv_gb)) +
+  geom_histogram(binwidth=1, alpha=.5, fill="black") +
+  coord_cartesian(xlim = c(200, 600), ylim = c(0,60))
+
+```
+
+## Hardware Survey - Types of GPUs
+
+
+```{r GPU_Desc, echo=FALSE}
+
+hrdwr$GPUSumDesc = as.character(NA)
+
+hrdwr$GPUSumDesc[grepl('nvidia|NVIDIA|Nvidia', hrdwr$GPU_Desc)] = 'NVIDIA'
+hrdwr$GPUSumDesc[grepl('apple|Apple|APPLE', hrdwr$GPU_Desc)] = 'Apple'
+hrdwr$GPUSumDesc[grepl('rtx|RTX', hrdwr$GPU_Desc)] = 'RTX'
+hrdwr$GPUSumDesc[grepl('intel|Intel|INTEL', hrdwr$GPU_Desc)] = 'Intel'
+hrdwr$GPUSumDesc[grepl('radeon|Radeon|RADEON', hrdwr$GPU_Desc)] = 'Radeon'
+
+hrdwr = hrdwr %>%
+  mutate(GPUSumDesc = ifelse(is.na(GPUSumDesc), 'Other', GPUSumDesc))
+
+ggplot(hrdwr, aes(x=GPUSumDesc)) +
+  geom_bar(alpha=.5, fill="black") +
+  geom_text(aes(label = after_stat(count)), stat = "count", vjust = 0, colour = "black") 
+
+
+```
+
+## Hardware Survey - GPU Cuda Cores
+
+
+```{r GPUCudaCores, echo=FALSE}
+
+tempdf = hrdwr %>%
+  filter(!is.na(GPUCudaCores))
+
+ggplot(tempdf, aes(x=GPUCudaCores, rm.na = T)) +
+  geom_histogram(binwidth=10, alpha=.5, fill = 'black') +
+  coord_cartesian(xlim = c(0, 5000))
+
+
+```

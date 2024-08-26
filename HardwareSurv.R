@@ -21,7 +21,12 @@ tempYr = hrdwr %>%
   filter(Year > 2019)
 
 ggplot(tempYr , aes(Year)) +
-  geom_bar(alpha=.5, fill="violet")
+  geom_bar(alpha=.5, fill="red") +
+  geom_text(aes(label = after_stat(count)), stat = "count", vjust = 2, colour = "white") 
+
+
+
+
 
 ####
 unique(hrdwr$OpSys)
